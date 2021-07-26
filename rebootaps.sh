@@ -35,8 +35,8 @@ reboot ()
 
 delayCounter ()
 {
-    echo -n "Next reboot in [s]"
-    n=$1
+    echo -n "Next reboot in [s]: "
+    n=$1a
     while [ $n -ge 10 ]
     do
         echo -n "$n "
@@ -45,6 +45,13 @@ delayCounter ()
     done
     echo
 }
+
+showUsage ()
+{
+	echo "Usage example: $0 192.168.8. 10 15"
+}
+
+showUsage
 
 for ((i=$IPSTART; i<=$IPEND; i++))
     do
