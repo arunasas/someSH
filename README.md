@@ -1,0 +1,2 @@
+# someSH
+sh scripts
