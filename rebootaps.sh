@@ -24,9 +24,11 @@ PASS1="/root/sshpasswd1"
 PASS2="/root/sshpasswd2"
 PASSTEST="sshpasswdtest"
 
-IPBASE=$2
-IPSTART=$3
-IPEND=$4
+CMD=$2
+IPBASE=$3
+IPSTART=$4
+IPEND=$5
+SLEEP=20
 
 selectPasswdFile ()
 {
@@ -50,10 +52,10 @@ selectPasswdFile ()
 	esac
 }
 
-reboot ()
+sshCommand ()
 {
     IP=$1
-    $SSHPASS -f $PASS $SSH $USER@$IP $SSHOPTSAPC 'uname -a'
+    $SSHPASS -f $PASS $SSH $USER@$IP $SSHOPTSAPC $CMD
 }
 
 delayCounter ()
@@ -71,8 +73,8 @@ delayCounter ()
 
 showUsage ()
 {
-	echo "Usage example: $0 sshpasswdfile x.x.x. x x"
-	echo "Usage example: $0 sshpasswdfile 192.168.8. 10 15"
+	echo "Usage example: $0 sshpasswdfile 'command' x.x.x. x x"
+	echo "Usage example: $0 sshpasswdfile 'uname -a' 192.168.8. 10 15"
 }
 
 #showUsage
@@ -81,10 +83,13 @@ selectPasswdFile $1
 
 for ((i=$IPSTART; i<=$IPEND; i++))
     do
-    reboot $IPBASE$i
+    sshCommand $IPBASE$i
     
-    [ $? -eq 0 ] && echo "$IPBASE$i sent reboot command" || 
-    echo "$IPBASE$i failed to send reboot command"
+    [ $? -eq 0 ] && echo "$IPBASE$i sent '$CMD' command" || 
+    echo "$IPBASE$i failed to send '$CMD' command"
     
-    #delayCounter 40
+    [ ! $i -eq $IPEND ] && delayCounter $SLEEP || continue
+    
+    #[ ! $i -eq $IPEND ] && sleep $SLEEP || continue
+    
     done
