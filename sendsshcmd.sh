@@ -24,11 +24,15 @@ PASS1="/root/sshpasswd1"
 PASS2="/root/sshpasswd2"
 PASSTEST="sshpasswdtest"
 
-CMD=$2
+TIME=$(date +"%Y-%m-%d")
+OUTPUTFILE="/tmp/$0_output_$TIME"
+
+CMD=$1
+PASSWD=$2
 IPBASE=$3
 IPSTART=$4
 IPEND=$5
-SLEEP=20
+SLEEP=10
 
 selectPasswdFile ()
 {
@@ -73,23 +77,28 @@ delayCounter ()
 
 showUsage ()
 {
-	echo "Usage example: $0 sshpasswdfile 'command' x.x.x. x x"
-	echo "Usage example: $0 sshpasswdfile 'uname -a' 192.168.8. 10 15"
+	echo "Usage example: $0 'command' sshpasswdfile x.x.x. x x"
+	echo "Usage example: $0 'uname -a' sshpasswdfile 192.168.8. 10 15"
 }
 
 #showUsage
 
-selectPasswdFile $1
+selectPasswdFile $PASSWD
 
 for ((i=$IPSTART; i<=$IPEND; i++))
     do
-    sshCommand $IPBASE$i
+    sshCommand $IPBASE$i &>/dev/null
     
-    [ $? -eq 0 ] && echo "$IPBASE$i sent '$CMD' command" || 
-    echo "$IPBASE$i failed to send '$CMD' command"
+    putToLog=`[ $? -eq 0 ] && echo "$0: sent '$CMD' to $IPBASE$i" || 
+    echo "$0: failed to send '$CMD' to $IPBASE$i"`
     
-    [ ! $i -eq $IPEND ] && delayCounter $SLEEP || continue
+    #echo $putToLog
     
-    #[ ! $i -eq $IPEND ] && sleep $SLEEP || continue
+    echo $putToLog | gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $OUTPUTFILE
+    
+    #[ ! $i -eq $IPEND ] && delayCounter $SLEEP || continue
+    
+    [ ! $i -eq $IPEND ] && sleep $SLEEP || continue
     
     done
+
