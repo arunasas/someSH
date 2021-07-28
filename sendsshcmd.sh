@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# A simple shell script to send a command to host(s) using ssh.
+#
+# Updated on 2021-07-28
+#
+
 
 SSHPASS=/usr/bin/sshpass
 SSH=/usr/bin/ssh
