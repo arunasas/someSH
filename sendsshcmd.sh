@@ -24,21 +24,27 @@ SSHOPTSNFT="
 -oLogLevel=ERROR
 -oUserKnownHostsFile=/dev/null"
 
+HOMEDIR=
+
 USER="admin"
-PASS0="/root/sshpasswd0"
+PASSWDFILE="/root/sshpasswd0"
 PASS1="/root/sshpasswd1"
 PASS2="/root/sshpasswd2"
 PASSTEST="sshpasswdtest"
 
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+NC='\033[0m'
+
 TIME=$(date +"%Y-%m-%d")
-OUTPUTFILE="/tmp/$0_output_$TIME"
+OUTPUTFILE="/root/logs/$0_output_$TIME"
 
 CMD=$1
 PASSWD=$2
 IPBASE=$3
 IPSTART=$4
 IPEND=$5
-SLEEP=10
+SLEEP=120
 
 selectPasswdFile ()
 {
@@ -95,16 +101,17 @@ for ((i=$IPSTART; i<=$IPEND; i++))
     do
     sshCommand $IPBASE$i &>/dev/null
     
-    putToLog=`[ $? -eq 0 ] && echo "$0: sent '$CMD' to $IPBASE$i" || 
-    echo "$0: failed to send '$CMD' to $IPBASE$i"`
+    putToLog=`[ $? -eq 0 ] && 
+    echo -e "$0: '$CMD' to $IPBASE$i ${GREEN}success${NC}" || 
+    echo -e "$0: '$CMD' to $IPBASE$i ${RED}failed${NC}"`
     
     #echo $putToLog
     
-    echo $putToLog | gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $OUTPUTFILE
+    echo $putToLog | 
+    gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $OUTPUTFILE
     
     #[ ! $i -eq $IPEND ] && delayCounter $SLEEP || continue
     
     [ ! $i -eq $IPEND ] && sleep $SLEEP || continue
     
     done
-
